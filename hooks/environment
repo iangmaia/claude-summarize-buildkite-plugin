@@ -6,8 +6,8 @@ DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 # shellcheck source=lib/plugin.bash
 . "$DIR/../lib/plugin.bash"
 
-# Get configuration - let shell handle command substitution and variable expansion
-API_KEY=$(plugin_read_config API_KEY "")
+# Resolve only a simple runtime environment-variable reference such as $ANTHROPIC_API_KEY.
+API_KEY=$(plugin_read_secret_config API_KEY ANTHROPIC_API_KEY)
 
 # Export API key if provided
 if [[ -n "$API_KEY" ]]; then

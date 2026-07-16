@@ -5,15 +5,7 @@ PLUGIN_PREFIX="CLAUDE_SUMMARIZE"
 
 # Get the Buildkite API token from environment or plugin config
 function get_buildkite_api_token() {
-  local config_token=""
-  config_token=$(plugin_read_config BUILDKITE_API_TOKEN "")
-
-  # If not found in config, check environment variable
-  if [ -z "${config_token}" ]; then
-    echo "${BUILDKITE_API_TOKEN:-}"
-  else
-    echo "${config_token}"
-  fi
+  plugin_read_secret_config BUILDKITE_API_TOKEN BUILDKITE_API_TOKEN
 }
 
 # Reads either a value or a list from the given env prefix
@@ -71,6 +63,25 @@ function plugin_read_config() {
   local var="BUILDKITE_PLUGIN_${PLUGIN_PREFIX}_${1}"
   local default="${2:-}"
   echo "${!var:-$default}"
+}
+
+# Reads secret-valued plugin configuration without evaluating arbitrary shell input.
+# A simple $VARIABLE reference is resolved from the runtime environment; all other
+# configured values are returned literally.
+function plugin_read_secret_config() {
+  local config_name="$1"
+  local fallback_env_name="${2:-}"
+  local configured=""
+  configured=$(plugin_read_config "${config_name}" "")
+
+  if [[ "${configured}" =~ ^\$([A-Za-z_][A-Za-z0-9_]*)$ ]]; then
+    local env_name="${BASH_REMATCH[1]}"
+    printf '%s' "${!env_name:-}"
+  elif [ -n "${configured}" ]; then
+    printf '%s' "${configured}"
+  elif [ -n "${fallback_env_name}" ]; then
+    printf '%s' "${!fallback_env_name:-}"
+  fi
 }
 
 # Source log handling functions from lib/logs.bash

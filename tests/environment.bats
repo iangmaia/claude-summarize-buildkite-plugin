@@ -14,6 +14,9 @@ setup() {
 teardown() {
   # Clean up environment variables
   unset BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY
+  unset BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_BUILDKITE_API_TOKEN
+  unset ANTHROPIC_API_KEY
+  unset BUILDKITE_TOKEN_FOR_CLAUDE
   unset TEST_ENV_VAR
   unset EMPTY_ENV_VAR
 }
@@ -47,6 +50,39 @@ teardown() {
 
   # Check that literal values are preserved
   [ "${BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY}" = "literal-key-value" ]
+}
+
+@test "Environment hook resolves a runtime API key reference" {
+  export ANTHROPIC_API_KEY="sk-ant-runtime-key"
+  export BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY='$ANTHROPIC_API_KEY'
+
+  source "$PWD"/hooks/environment
+
+  [ "${BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY}" = "sk-ant-runtime-key" ]
+}
+
+@test "Secret configuration does not evaluate shell expressions" {
+  export BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY='$(printf unsafe)'
+
+  source "$PWD"/hooks/environment
+
+  [ "${BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY}" = '$(printf unsafe)' ]
+}
+
+@test "Missing runtime API key references resolve to an empty value" {
+  export BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY='$MISSING_API_KEY'
+  unset MISSING_API_KEY
+  source "$PWD"/lib/plugin.bash
+
+  [ -z "$(plugin_read_secret_config API_KEY ANTHROPIC_API_KEY)" ]
+}
+
+@test "Buildkite API token resolves a runtime environment reference" {
+  export BUILDKITE_TOKEN_FOR_CLAUDE="buildkite-runtime-token"
+  export BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_BUILDKITE_API_TOKEN='$BUILDKITE_TOKEN_FOR_CLAUDE'
+  source "$PWD"/lib/plugin.bash
+
+  [ "$(get_buildkite_api_token)" = "buildkite-runtime-token" ]
 }
 
 @test "Environment hook handles special characters in API key" {

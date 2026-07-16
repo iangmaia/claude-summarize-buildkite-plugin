@@ -9,9 +9,10 @@ DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
 . "$DIR/../lib/logs.bash"
 
 # Read plugin configuration
-API_KEY=$(plugin_read_config API_KEY "")
+API_KEY=$(plugin_read_secret_config API_KEY ANTHROPIC_API_KEY)
 # Trim any whitespace that might be causing issues
 API_KEY=$(echo "$API_KEY" | tr -d '[:space:]')
+BUILDKITE_API_TOKEN_VALUE=$(get_buildkite_api_token)
 
 # If API_KEY is still not set, this means it wasn't provided directly or via the environment hook
 if [ -z "${API_KEY}" ]; then
@@ -42,7 +43,7 @@ COMPARISON_RANGE=$(plugin_read_config COMPARISON_RANGE "5")
 validate_tools || exit 1
 
 # Validate configuration
-validate_configuration "${API_KEY}" "${MODEL}" "${TRIGGER}" "${ANALYSIS_LEVEL}" "${COMPARE_BUILDS}" "$(plugin_read_config BUILDKITE_API_TOKEN "")" "${BUILD_LOG_MODE}" || exit 1
+validate_configuration "${API_KEY}" "${MODEL}" "${TRIGGER}" "${ANALYSIS_LEVEL}" "${COMPARE_BUILDS}" "${BUILDKITE_API_TOKEN_VALUE}" "${BUILD_LOG_MODE}" || exit 1
 
 echo "--- :robot_face: Claude Code Plugin (Post-Command)"
 echo "Model: ${MODEL}"
