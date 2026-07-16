@@ -45,13 +45,13 @@ function validate_configuration() {
   fi
   
   # Check for Buildkite API token when build level analysis is requested
-  if [ "${analysis_level}" = "build" ] && [ "${buildkite_api_token}" = "" ] && [ -z "${BUILDKITE_API_TOKEN:-}" ]; then
+  if [ "${analysis_level}" = "build" ] && [ -z "${buildkite_api_token}" ]; then
     echo "⚠️ Warning: build-level analysis works best with a Buildkite API token" >&2
     echo "   Set buildkite_api_token or ensure BUILDKITE_API_TOKEN environment variable is available" >&2
   fi
   
   # Check for Buildkite API token when build comparison is enabled
-  if [ "${compare_builds}" = "true" ] && [ "${buildkite_api_token}" = "" ] && [ -z "${BUILDKITE_API_TOKEN:-}" ]; then
+  if [ "${compare_builds}" = "true" ] && [ -z "${buildkite_api_token}" ]; then
     echo "⚠️ Warning: build comparison requires a Buildkite API token" >&2
     echo "   Set buildkite_api_token or ensure BUILDKITE_API_TOKEN environment variable is available" >&2
   fi

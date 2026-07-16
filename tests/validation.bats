@@ -61,6 +61,15 @@ setup() {
   assert_output --partial "Warning: build comparison requires a Buildkite API token"
 }
 
+@test "Validate configuration checks the resolved API token value" {
+  export BUILDKITE_API_TOKEN="unselected-fallback-token"
+
+  run validate_configuration "sk-ant-test-key" "claude-3-opus" "on-failure" "build" "false" ""
+
+  assert_success
+  assert_output --partial "Warning: build-level analysis works best with a Buildkite API token"
+}
+
 @test "Validate tools succeeds with available tools" {
   # Mock commands
   # shellcheck disable=SC2329  # Mock command for BATS test; intentional redefinition

@@ -12,10 +12,10 @@ configuration:
       default: https://api.anthropic.com
     api_key:
       type: string
-      description: Anthropic API key for Claude access. Supports direct values or simple runtime environment-variable references such as $ANTHROPIC_API_KEY
+      description: Anthropic API key for Claude access. Supports direct values or exact runtime environment-variable references such as $ANTHROPIC_API_KEY or ${ANTHROPIC_API_KEY}
     buildkite_api_token:
       type: string
-      description: Buildkite API token for fetching job logs. Supports direct values or simple runtime environment-variable references and falls back to BUILDKITE_API_TOKEN
+      description: Buildkite API token for fetching job logs. Supports direct values or exact runtime environment-variable references such as $BUILDKITE_API_TOKEN or ${BUILDKITE_API_TOKEN}, and falls back to BUILDKITE_API_TOKEN
     model:
       type: string
       description: Claude model to use

@@ -66,16 +66,22 @@ function plugin_read_config() {
 }
 
 # Reads secret-valued plugin configuration without evaluating arbitrary shell input.
-# A simple $VARIABLE reference is resolved from the runtime environment; all other
-# configured values are returned literally.
+# A simple $VARIABLE or ${VARIABLE} reference is resolved from the runtime
+# environment; all other configured values are returned literally.
 function plugin_read_secret_config() {
   local config_name="$1"
   local fallback_env_name="${2:-}"
   local configured=""
+  local env_name=""
   configured=$(plugin_read_config "${config_name}" "")
 
   if [[ "${configured}" =~ ^\$([A-Za-z_][A-Za-z0-9_]*)$ ]]; then
-    local env_name="${BASH_REMATCH[1]}"
+    env_name="${BASH_REMATCH[1]}"
+  elif [[ "${configured}" =~ ^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$ ]]; then
+    env_name="${BASH_REMATCH[1]}"
+  fi
+
+  if [ -n "${env_name}" ]; then
     printf '%s' "${!env_name:-}"
   elif [ -n "${configured}" ]; then
     printf '%s' "${configured}"

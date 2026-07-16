@@ -55,11 +55,11 @@ steps:
 
 Your Anthropic API key for accessing Claude. Use an environment variable reference:
 
-- **Runtime environment variable**: Use `"$$ANTHROPIC_API_KEY"`. Buildkite converts `$$` to a literal `$` during pipeline upload, and the plugin resolves the reference from the agent's runtime environment without placing the secret value in uploaded pipeline metadata.
-- **Buildkite secrets**: Create `.buildkite/hooks/pre-command` with `export ANTHROPIC_API_KEY=$(buildkite-agent secret get ANTHROPIC_API_KEY)`, then use `"$$ANTHROPIC_API_KEY"` (recommended).
+- **Runtime environment variable**: Use `"$$ANTHROPIC_API_KEY"` or `"$${ANTHROPIC_API_KEY}"`. Buildkite converts `$$` to a literal `$` during pipeline upload, and the plugin resolves the reference from the agent's runtime environment without placing the secret value in uploaded pipeline metadata.
+- **Buildkite secrets**: Create `.buildkite/hooks/pre-command` with `export ANTHROPIC_API_KEY=$(buildkite-agent secret get ANTHROPIC_API_KEY)`, then use either runtime reference form above (recommended).
 - **Direct value**: Supported for compatibility, but not recommended for pipeline configuration.
 
-Only simple references matching `$VARIABLE` are resolved. Shell expressions and command substitutions are treated as literal values and are never executed.
+Only exact references matching `$VARIABLE` or `${VARIABLE}` are resolved. Shell expressions, command substitutions, and malformed references are treated as literal values and are never executed.
 
 ### Optional
 
@@ -78,7 +78,7 @@ Claude model to use for analysis. Default: `claude-3-7-sonnet-20250219`
 
 #### `buildkite_api_token` (string)
 
-Buildkite API token for fetching job logs directly from the Buildkite API. This improves analysis by providing the exact failing job logs. It supports the same safe runtime reference syntax (for example, `"$$BUILDKITE_TOKEN_FOR_CLAUDE"`). If not specified, the plugin will look for `BUILDKITE_API_TOKEN` in the environment.
+Buildkite API token for fetching job logs directly from the Buildkite API. This improves analysis by providing the exact failing job logs. It supports the same safe runtime reference syntax (for example, `"$$BUILDKITE_TOKEN_FOR_CLAUDE"` or `"$${BUILDKITE_TOKEN_FOR_CLAUDE}"`). If not specified, the plugin will look for `BUILDKITE_API_TOKEN` in the environment.
 
 #### `trigger` (string)
 
