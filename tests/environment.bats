@@ -80,6 +80,7 @@ teardown() {
   source "$PWD"/hooks/environment
 
   [ "${BUILDKITE_PLUGIN_CLAUDE_SUMMARIZE_API_KEY}" = '$(printf unsafe)' ]
+  [ "$(plugin_read_secret_config API_KEY ANTHROPIC_API_KEY)" = '$(printf unsafe)' ]
 }
 
 @test "Secret configuration preserves malformed braced references" {
